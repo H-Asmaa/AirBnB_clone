@@ -98,21 +98,34 @@ class HBNBCommand(cmd.Cmd):
         except NameError:
             print("** class doesn't exist **")
 
+    
     def do_all(self, arg):
         """To print all objects or objects of a specific class"""
+        argums = arg.split()  # Parse the argument directly here
         objects = models.storage.all()
-        if not arg.split():
-            for val in objects.values():
-                print(f"{str(val)}", end="")
-            print()
-        else:
-            if arg not in self.classes_map:
-                print("** class doesn't exist **")
+
+        if len(argums) > 0 and '.' in argums[0]:
+            class_method = argums[0].split('.')
+            if len(class_method) == 2 and class_method[1] == "all" and class_method[0] in self.classes_map:
+                class_name = class_method[0]
+                object_values = []
+                for obj in objects.values():
+                    if class_name == obj.__class__.__name__:
+                        object_values.append(obj.__str__())
+                print(object_values)
             else:
-                for val in objects.values():
-                    if type(val).__name__ == arg:
-                        print(f"{str(val)}", end="")
-                print()
+                print("*** Unknown syntax:", arg)
+
+        else:
+            object_values = []
+            for obj in objects.values():
+                if len(argums) > 0 and argums[0] == obj.__class__.__name__: # checks if the first word you provided is matches the class name of the current object we're looking at.
+                    object_values.append(obj.__str__())
+                elif len(argums) == 0:
+                    object_values.append(obj.__str__())
+            print(object_values)
+
+
 
     def do_update(self, arg):
         """Update method to update an attribute in a given object"""
